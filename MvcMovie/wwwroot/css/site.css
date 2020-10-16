@@ -72,6 +72,7 @@ body {
   font-family: 'Piazzolla', serif;
 }
 
+/* Styling for the selection */
 ::selection {
   background-color: #d51808;
   color: #fff;
@@ -82,6 +83,10 @@ body {
   align-items: center;
   justify-content: space-between;
   
+}
+
+tbody tr:nth-child(even) {
+    background-color: #fee;
 }
 
 .footer {
