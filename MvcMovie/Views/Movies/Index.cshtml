@@ -1,141 +1,165 @@
 ﻿@model MvcMovie.Models.MovieGenreViewModel
 
 @{
-  ViewData["Title"] = "Index";
+    ViewData["Title"] = "Index";
+
+    // On the order by select, set the selected prop from the model
+    foreach (var prop in Model.MovieProperties)
+    {
+        if (prop.ToString() == Model.OrderBy)
+        {
+            prop.Selected = true;
+            break;
+        }
+    }
 }
 
 <h1>Index</h1>
 
 <p>
-  <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Create New</a>
 </p>
 
 <form asp-controller="Movies" asp-action="Index" method="get">
-  <p>
-    Genre:
-    <select asp-for="MovieGenre" asp-items="Model.Genres">
-      <option value="">All</option>
-    </select>
+    <p>
+        Genre:
+        <select asp-for="MovieGenre" asp-items="Model.Genres">
+            <option value="">All</option>
+        </select>
 
-    Title: <input type="text" asp-for="SearchString" />
+        Title: <input type="text" asp-for="SearchString" />
 
-    <input type="hidden" name="pageNumber" value="@Model.Movies.PageNumber" />
-    <input type="hidden" name="pageSize" value="@Model.Movies.PageSize" />
+        <input type="hidden" name="pageNumber" value="@Model.Movies.PageNumber" />
+        <input type="hidden" name="pageSize" value="@Model.Movies.PageSize" />
 
-    Order by:
-    <select asp-for="OrderBy" asp-items="@Model.MovieProperties">
-    </select>
+        Order by:
+        <select asp-for="OrderBy" asp-items="@Model.MovieProperties">
+        </select>
 
-    <input type="submit" value="Filter" />
-  </p>
+        <input type="submit" value="Filter" />
+    </p>
 </form>
 
 <table class="table">
-  <thead>
-    <tr>
-      <th>
-        @Html.DisplayNameFor(model => model.Movies[0].Title)
-      </th>
-      <th>
-        @Html.DisplayNameFor(model => model.Movies[0].ReleaseDate)
-      </th>
-      <th>
-        @Html.DisplayNameFor(model => model.Movies[0].Genre)
-      </th>
-      <th>
-        @Html.DisplayNameFor(model => model.Movies[0].Price)
-      </th>
-      <th>
-        @Html.DisplayNameFor(model => model.Movies[0].Rating)
-      </th>
-      <th>
-        @Html.DisplayNameFor(model => model.Movies[0].BoxOffice)
-      </th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    @foreach (var item in Model.Movies)
-    {
-      <tr>
-        <td>
-          @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
-          @Html.DisplayFor(modelItem => item.ReleaseDate)
-        </td>
-        <td>
-          @Html.DisplayFor(modelItem => item.Genre)
-        </td>
-        <td>
-          @Html.DisplayFor(modelItem => item.Price)
-        </td>
-        <td>
-          @Html.DisplayFor(modelItem => item.Rating)
-        </td>
-        <td>
-          @{
-            string boxOfficeDisplay = item.BoxOffice >= 1000 ? "$" + (item.BoxOffice / 1000).ToString() + " billion" : "$" + item.BoxOffice.ToString() + " million";
-          }
-          @Html.DisplayFor(modelItem => boxOfficeDisplay)
-        </td>
-        <td>
-          <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-          <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-          <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-        </td>
-      </tr>
-    }
-  </tbody>
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Movies[0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Movies[0].ReleaseDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Movies[0].Genre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Movies[0].Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Movies[0].Rating)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Movies[0].BoxOffice)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Movies)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReleaseDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Genre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Rating)
+                </td>
+                <td>
+                    @{
+                        string boxOfficeDisplay = item.BoxOffice >= 1000 ? "$" + (item.BoxOffice / 1000).ToString() + " billion" : "$" + item.BoxOffice.ToString() + " million";
+                    }
+                    @Html.DisplayFor(modelItem => boxOfficeDisplay)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
 
 @{
-  var prevDisabled = !Model.Movies.HasPreviousPage ? "disabled" : "";
-  var nextDisabled = !Model.Movies.HasNextPage ? "disabled" : "";
+    var prevDisabled = !Model.Movies.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Movies.HasNextPage ? "disabled" : "";
+
+    // Params for the route
+    Dictionary<string, string> routeParams = new Dictionary<string, string>
+    {
+        { "pageSize", Model.Movies.PageSize.ToString() },
+        { "searchString", Model.SearchString },
+        { "movieGenre", Model.MovieGenre },
+        { "orderBy", Model.OrderBy }
+    };
 }
 
 <div class="pagination-container">
-  <div>
-    <a asp-action="Index"
-       asp-route-pageNumber="@(Model.Movies.PageNumber - 1)"
-       asp-route-pageSize="@Model.Movies.PageSize"
-       asp-route-searchString="@ViewData["SearchString"]"
-       asp-route-movieGenre="@ViewData["MovieGenre"]"
-       class="btn btn-danger @prevDisabled">
-      Previous
-    </a>
-    <a asp-action="Index"
-       asp-route-pageNumber="@(Model.Movies.PageNumber + 1)"
-       asp-route-pageSize="@Model.Movies.PageSize"
-       asp-route-searchString="@ViewData["SearchString"]"
-       asp-route-movieGenre="@ViewData["MovieGenre"]"
-       class="btn btn-danger @nextDisabled">
-      Next
-    </a>
-  </div>
+    <div>
+        <a asp-action="Index"
+           asp-route-pageNumber="@(Model.Movies.PageNumber - 1)"
+           asp-route-pageSize="@Model.Movies.PageSize"
+           asp-route-searchString="@ViewData["SearchString"]"
+           asp-route-movieGenre="@ViewData["MovieGenre"]"
+           asp-route-orderBy="@Model.OrderBy"
+           class="btn btn-danger @prevDisabled">
+            Previous
+        </a>
+        <a asp-action="Index"
+           asp-route-pageNumber="@(Model.Movies.PageNumber + 1)"
+           asp-route-pageSize="@Model.Movies.PageSize"
+           asp-route-searchString="@ViewData["SearchString"]"
+           asp-route-movieGenre="@ViewData["MovieGenre"]"
+           asp-route-orderBy="@Model.OrderBy"
+           class="btn btn-danger @nextDisabled">
+            Next
+        </a>
+    </div>
 
-  <div>
-    <span>Page size: </span>
-    <a asp-action="Index"
-       asp-route-pageSize="5"
-       asp-route-searchString="@ViewData["SearchString"]"
-       asp-route-movieGenre="@ViewData["MovieGenre"]"
-       class="btn @(Model.Movies.PageSize == 5 ? "btn-primary" : "btn-outline-primary")">
-      5
-    </a>
-    <a asp-action="Index"
-       asp-route-pageSize="10"
-       asp-route-searchString="@ViewData["SearchString"]"
-       asp-route-movieGenre="@ViewData["MovieGenre"]"
-       class="btn @(Model.Movies.PageSize == 10 ? "btn-primary" : "btn-outline-primary")">
-      10
-    </a>
-    <a asp-action="Index"
-       asp-route-pageSize="20"
-       asp-route-searchString="@ViewData["SearchString"]"
-       asp-route-movieGenre="@ViewData["MovieGenre"]"
-       class="btn @(Model.Movies.PageSize == 20 ? "btn-primary" : "btn-outline-primary")">
-      20
-    </a>
-  </div>
+    <div>
+        <span>Page size: </span>
+        <a asp-action="Index"
+           asp-route-pageSize="5"
+           asp-route-searchString="@ViewData["SearchString"]"
+           asp-route-movieGenre="@ViewData["MovieGenre"]"
+           asp-route-orderBy="@Model.OrderBy"
+           class="btn @(Model.Movies.PageSize == 5 ? "btn-primary" : "btn-outline-primary")">
+            5
+        </a>
+        <a asp-action="Index"
+           asp-route-pageSize="10"
+           asp-route-searchString="@ViewData["SearchString"]"
+           asp-route-movieGenre="@ViewData["MovieGenre"]"
+           asp-route-orderBy="@Model.OrderBy"
+           class="btn @(Model.Movies.PageSize == 10 ? "btn-primary" : "btn-outline-primary")">
+            10
+        </a>
+        <a asp-action="Index"
+           asp-route-pageSize="20"
+           asp-route-searchString="@ViewData["SearchString"]"
+           asp-route-movieGenre="@ViewData["MovieGenre"]"
+           asp-route-orderBy="@Model.OrderBy"
+           class="btn @(Model.Movies.PageSize == 20 ? "btn-primary" : "btn-outline-primary")">
+            20
+        </a>
+    </div>
 </div>

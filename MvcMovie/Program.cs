@@ -13,39 +13,39 @@ using System.Threading;
 
 namespace MvcMovie
 {
-  public class Program
-  {
-    public static void Main(string[] args)
+    public class Program
     {
-      //CultureInfo RoCulture = new CultureInfo("ro-RO");
-      //CultureInfo.DefaultThreadCurrentCulture = RoCulture;
-      //CultureInfo.DefaultThreadCurrentUICulture = RoCulture;
-
-      var host = CreateHostBuilder(args).Build();
-
-      using(var scope = host.Services.CreateScope())
-      {
-        var services = scope.ServiceProvider;
-
-        try
+        public static void Main(string[] args)
         {
-          SeedData.Initialize(services);
-        }
-        catch(Exception ex)
-        {
-          var logger = services.GetRequiredService<ILogger<Program>>();
-          logger.LogError(ex, "An error occurred while seeding the DB.");
-        }
-      }
+            CultureInfo UsCulture = new CultureInfo("en-US");
+            CultureInfo.DefaultThreadCurrentCulture = UsCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = UsCulture;
 
-      host.Run();
-    }
+            var host = CreateHostBuilder(args).Build();
 
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
+            using (var scope = host.Services.CreateScope())
             {
-              webBuilder.UseStartup<Startup>();
-            });
-  }
+                var services = scope.ServiceProvider;
+
+                try
+                {
+                    SeedData.Initialize(services);
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while seeding the DB.");
+                }
+            }
+
+            host.Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
 }
