@@ -45,7 +45,10 @@
       @Html.DisplayNameFor(model => model.BoxOffice)
     </dt>
     <dd class="col-sm-10">
-      @Html.DisplayFor(model => model.BoxOffice)
+      @{
+        string boxOfficeDisplay = Model.BoxOffice >= 1000 ? "$" + (Model.BoxOffice / 1000).ToString() + " billion" : "$" + Model.BoxOffice.ToString() + " million";
+      }
+      @Html.DisplayFor(model => boxOfficeDisplay)
     </dd>
   </dl>
 

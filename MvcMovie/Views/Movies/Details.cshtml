@@ -45,7 +45,7 @@
     </dt>
     <dd class="col-sm-10">
       @{
-        var boxOfficeDisplay = Model.BoxOffice >= 1000 ? (Model.BoxOffice / 1000).ToString() + " billion" : Model.BoxOffice.ToString() + " million";
+        string boxOfficeDisplay = Model.BoxOffice >= 1000 ? "$" + (Model.BoxOffice / 1000).ToString() + " billion" : "$" + Model.BoxOffice.ToString() + " million";
       }
       @Html.DisplayFor(model => boxOfficeDisplay)
     </dd>

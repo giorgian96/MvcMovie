@@ -70,7 +70,7 @@
         </td>
         <td>
           @{
-            var boxOfficeDisplay = item.BoxOffice >= 1000 ? (item.BoxOffice / 1000).ToString() + " billion" : item.BoxOffice.ToString() + " million";
+            string boxOfficeDisplay = item.BoxOffice >= 1000 ? "$" + (item.BoxOffice / 1000).ToString() + " billion" : "$" + item.BoxOffice.ToString() + " million";
           }
           @Html.DisplayFor(modelItem => boxOfficeDisplay)
         </td>
