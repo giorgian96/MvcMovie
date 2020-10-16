@@ -12,6 +12,7 @@
 
 <form asp-controller="Movies" asp-action="Index" method="get">
   <p>
+    Genre:
     <select asp-for="MovieGenre" asp-items="Model.Genres">
       <option value="">All</option>
     </select>
@@ -20,6 +21,10 @@
 
     <input type="hidden" name="pageNumber" value="@Model.Movies.PageNumber" />
     <input type="hidden" name="pageSize" value="@Model.Movies.PageSize" />
+
+    Order by:
+    <select asp-for="OrderBy" asp-items="@Model.MovieProperties">
+    </select>
 
     <input type="submit" value="Filter" />
   </p>

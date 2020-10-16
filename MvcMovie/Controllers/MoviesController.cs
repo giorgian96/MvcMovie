@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -21,7 +23,7 @@ namespace MvcMovie.Controllers
     }
 
     // GET: Movies
-    public async Task<IActionResult> Index(string movieGenre, string searchString, int? pageNumber, int? pageSize)
+    public async Task<IActionResult> Index(string movieGenre, string searchString, int? pageNumber, int? pageSize, string orderBy)
     {
       // Use LINQ to get list of genres
       IQueryable<string> genreQuery = from m in _context.Movie
@@ -29,6 +31,14 @@ namespace MvcMovie.Controllers
                                       select m.Genre;
 
       var movies = from m in _context.Movie select m;
+
+      // Get a list of the Movie model properties
+      List<PropertyInfo> moviePropsInfo = typeof(Movie).GetProperties().ToList();
+      List<string> movieProps = new List<string>();
+      foreach(var prop in moviePropsInfo)
+      {
+        movieProps.Add(prop.Name);
+      }
 
       if (!String.IsNullOrEmpty(searchString))
       {
@@ -49,12 +59,13 @@ namespace MvcMovie.Controllers
       }
 
       ViewData["MovieGenre"] = movieGenre;
-      ViewData["SearchString"] = searchString;
+      ViewData["SearchString"] = searchString;      
 
       var movieGenreVM = new MovieGenreViewModel
       {
         Genres = new SelectList(await genreQuery.Distinct().ToListAsync()),
-        Movies = await PaginatedList<Movie>.CreateAsync(movies.OrderByDescending(movie => movie.ReleaseDate).AsNoTracking(), pageNumber ?? 1, pageSize ?? 10)
+        Movies = await PaginatedList<Movie>.CreateAsync(movies.OrderByDescending(orderBy ?? "ReleaseDate").AsNoTracking(), pageNumber ?? 1, pageSize ?? 10),
+        MovieProperties = new SelectList(movieProps.Skip(1))
     };
 
       return View(movieGenreVM);
@@ -190,6 +201,28 @@ namespace MvcMovie.Controllers
     private bool MovieExists(int id)
     {
       return _context.Movie.Any(e => e.Id == id);
+    }
+  }
+
+  public static class IQueryableExtensions
+  {
+    public static IOrderedQueryable<T> OrderBy<T>(this IQueryable<T> source, string propertyName)
+    {
+      return source.OrderBy(ToLambda<T>(propertyName));
+    }
+
+    public static IOrderedQueryable<T> OrderByDescending<T>(this IQueryable<T> source, string propertyName)
+    {
+      return source.OrderByDescending(ToLambda<T>(propertyName));
+    }
+
+    private static Expression<Func<T, object>> ToLambda<T>(string propertyName)
+    {
+      var parameter = Expression.Parameter(typeof(T));
+      var property = Expression.Property(parameter, propertyName);
+      var propAsObject = Expression.Convert(property, typeof(object));
+
+      return Expression.Lambda<Func<T, object>>(propAsObject, parameter);
     }
   }
 }
